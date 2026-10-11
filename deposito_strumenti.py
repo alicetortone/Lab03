@@ -1,36 +1,77 @@
 import csv
+from strumento import Strumento
+from prestito import Prestito
 from operator import attrgetter
 
 class DepositoStrumenti:
     def __init__(self, nome, responsabile):
         """Inizializza gli attributi e le strutture dati"""
-        self.nome = nome
-        self.responsabile = responsabile
+        self.__nome = nome
+        self.__responsabile = responsabile
+
+        self.lista_strum = []
+        self.prestiti = []
+        self.contatore_prestiti = 0
+
+        @property
+        def nome(self):
+            return self.__nome
+        @nome.setter
+        def nome(self, nome):
+            self.__nome = nome
+
+        @property
+        def responsabile(self):
+            return self.__responsabile
+
+        @nome.setter
+        def nome(self, responsabile):
+            self.__responsabile = responsabile
+
 
     def carica_file_strumenti(self, file_path):
         """Carica gli strumenti dal file"""
         with open(file_path, "r", encoding="utf-8") as csv_file:
             csv_reader = csv.reader(csv_file)
             first=True
+            lista_strum = []
             for riga in csv_reader:
                 if first:
                     first=False
-                strumento = Strumenti(riga[0], riga[1], riga[2], riga[3], riga[4])
-
-
+                strum = Strumento(riga[0], riga[1], riga[2], riga[3], riga[4])
+                lista_strum.append(strum)
 
     def aggiungi_strumento(self, tipo, marca, anno_acquisto, valore):
         """Aggiunge uno strumento nel deposito: aggiunge solo nel sistema e non aggiorna il file"""
-        # TODO
+        ultimo_id = self.lista_strum[-1].id_strumento
+        nuovo_id = "S" + str(int(ultimo_id[1:]) + 1)
+        strum = Strumento(nuovo_id, tipo, marca, anno_acquisto, valore)
+        self.lista_strum.append(strum)
 
     def strumenti_ordinati_per_marca(self):
         """Ordina gli strumenti per marca in ordine alfabetico"""
-        # TODO
+        ordinati = sorted(self.lista_strum, key=attrgetter("marca"))
+        return ordinati
 
     def nuovo_prestito(self, data, id_strumento, cognome_allievo):
         """Crea un nuovo prestito"""
-        # TODO
+        for p in self.prestiti:
+            if p.id_strumento == id_strumento:
+                raise Exception("Strumento gia in prestito")
+
+        self.contatore_prestiti += 1
+        id_prestito = "P" + str(self.contatore_prestiti)
+        prest = Prestito(id_prestito, data, id_strumento, cognome_allievo)
+        self.prestiti.append(prest)
+        return prest
 
     def termina_prestito(self, id_prestito):
         """Termina un prestito in atto"""
-        # TODO
+        for i, prestito in enumerate(self.prestiti):
+            if prestito.id_prestito == id_prestito:
+                self.prestiti.pop(i)
+                return
+        raise Exception("Codice prestito non trovato")
+
+    def __str__(self):
+        return f"{self.__nome} {self.__responsabile} {self.lista_strum}"

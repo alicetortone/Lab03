@@ -5,3 +5,6 @@ class Strumento:
         self.marca = marca
         self.anno = int(anno)
         self.valore = float(valore)
+
+    def __str__(self):
+        return f"{self.id_strumento} {self.tipo} {self.marca} {self.anno} {self.valore}"
