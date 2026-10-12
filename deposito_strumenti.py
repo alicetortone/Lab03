@@ -13,40 +13,43 @@ class DepositoStrumenti:
         self.prestiti = []
         self.contatore_prestiti = 0
 
-        @property
-        def nome(self):
-            return self.__nome
-        @nome.setter
-        def nome(self, nome):
-            self.__nome = nome
+    @property
+    def nome(self):
+        return self.__nome
 
-        @property
-        def responsabile(self):
-            return self.__responsabile
+    @nome.setter
+    def nome(self, nome):
+        self.__nome = nome
 
-        @nome.setter
-        def nome(self, responsabile):
-            self.__responsabile = responsabile
+    @property
+    def responsabile(self):
+        return self.__responsabile
+
+    @responsabile.setter
+    def responsabile(self, responsabile):
+        self.__responsabile = responsabile
 
 
     def carica_file_strumenti(self, file_path):
         """Carica gli strumenti dal file"""
         with open(file_path, "r", encoding="utf-8") as csv_file:
             csv_reader = csv.reader(csv_file)
-            first=True
-            lista_strum = []
             for riga in csv_reader:
-                if first:
-                    first=False
+                if not riga:
+                    continue
                 strum = Strumento(riga[0], riga[1], riga[2], riga[3], riga[4])
-                lista_strum.append(strum)
+                self.lista_strum.append(strum)
 
     def aggiungi_strumento(self, tipo, marca, anno_acquisto, valore):
         """Aggiunge uno strumento nel deposito: aggiunge solo nel sistema e non aggiorna il file"""
-        ultimo_id = self.lista_strum[-1].id_strumento
-        nuovo_id = "S" + str(int(ultimo_id[1:]) + 1)
+        if self.lista_strum :
+            ultimo_id = self.lista_strum[-1].id_strumento
+            nuovo_id = "S" + str(int(ultimo_id[1:]) + 1)
+        else:
+            nuovo_id = "S1"
         strum = Strumento(nuovo_id, tipo, marca, anno_acquisto, valore)
         self.lista_strum.append(strum)
+        return strum
 
     def strumenti_ordinati_per_marca(self):
         """Ordina gli strumenti per marca in ordine alfabetico"""
@@ -55,6 +58,14 @@ class DepositoStrumenti:
 
     def nuovo_prestito(self, data, id_strumento, cognome_allievo):
         """Crea un nuovo prestito"""
+        trovato=False
+        for s in self.lista_strum:
+            if s.id_strumento == id_strumento:
+                trovato = True
+                break
+        if not trovato:
+            raise Exception("Strumento non trovato")
+
         for p in self.prestiti:
             if p.id_strumento == id_strumento:
                 raise Exception("Strumento gia in prestito")
